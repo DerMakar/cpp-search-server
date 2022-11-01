@@ -2,3 +2,6 @@
 // Напишите ответ здесь:
 
 // Закомитьте изменения и отправьте их в свой репозиторий.
+git add .
+  git commit -m "first commit to the project"
+  git push
