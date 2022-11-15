@@ -58,10 +58,10 @@ public:
     }
 
     void AddDocument(const int& document_id, const string& document) {
-               const vector<string> words = SplitIntoWordsNoStop(document);
+        const vector<string> words = SplitIntoWordsNoStop(document);
         double tf = 1.0 / words.size();
-        for (string w : words){
-                    documents_[w][document_id] += tf;
+        for (const string& word : words){
+                    documents_[word][document_id] += tf;
         }
          documents_count_++;
     }
@@ -137,18 +137,23 @@ private:
         return query;
     }
 
+        double CountIDF (const string& word) const {
+        double idf;
+            idf = log(1.0 * documents_count_ / documents_.at(word).size());
+            return idf;
+    }
+    
     vector<Document> FindAllDocuments(const Query& query) const {
         map <int,double> document_to_relevance;
         vector<Document> matched_documents;
         for (const string& word : query.plus_words) {
-            double idf;
             if (documents_.count(word) != 0){
-            idf = log(1.0*documents_count_ / documents_.at(word).size());
+            double idf = CountIDF (word);
                
         for (const auto& [ids, tf] : documents_.at(word)){
             document_to_relevance[ids] += tf*idf;            
-            }
-                        }
+        }
+        }
         }
             for (const string word : query.minus_words){
                  if (documents_.count(word) != 0){
