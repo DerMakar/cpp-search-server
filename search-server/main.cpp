@@ -63,7 +63,7 @@ public:
         for (const string& word : words){
                     documents_[word][document_id] += tf;
         }
-         documents_count_++;
+        documents_count_++;
     }
 
     vector<Document> FindTopDocuments(const string& raw_query) const {
@@ -137,10 +137,9 @@ private:
         return query;
     }
 
-        double CountIDF (const string& word) const {
+    double CountIDF (const string& word) const {
         double idf;
-            idf = log(1.0 * documents_count_ / documents_.at(word).size());
-            return idf;
+        return idf = log(1.0 * documents_count_ / documents_.at(word).size());
     }
     
     vector<Document> FindAllDocuments(const Query& query) const {
@@ -149,26 +148,23 @@ private:
         for (const string& word : query.plus_words) {
             if (documents_.count(word) != 0){
             double idf = CountIDF (word);
-               
-        for (const auto& [ids, tf] : documents_.at(word)){
+            for (const auto& [ids, tf] : documents_.at(word)){
             document_to_relevance[ids] += tf*idf;            
+            }
+            }
         }
-        }
-        }
-            for (const string word : query.minus_words){
-                 if (documents_.count(word) != 0){
-                for(const auto [ids, rel] : documents_.at(word)){
-                document_to_relevance.erase(ids);
+        for (const string word : query.minus_words){
+            if (documents_.count(word) != 0){
+            for(const auto [ids, rel] : documents_.at(word)){
+            document_to_relevance.erase(ids);
             } 
-                 }
             }
-            for (const auto& [ids, rel] : document_to_relevance){
-                matched_documents.push_back({ids, rel});
-            }
-                    return matched_documents;
+        }
+        for (const auto& [ids, rel] : document_to_relevance){
+            matched_documents.push_back({ids, rel});
+        }
+        return matched_documents;
     }
-
-    
 };
 
 SearchServer CreateSearchServer() {
