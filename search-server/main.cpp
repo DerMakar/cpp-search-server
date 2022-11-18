@@ -147,17 +147,17 @@ private:
         vector<Document> matched_documents;
         for (const string& word : query.plus_words) {
             if (documents_.count(word) != 0){
-            double idf = CountIDF (word);
-            for (const auto& [ids, tf] : documents_.at(word)){
-            document_to_relevance[ids] += tf*idf;            
-            }
+                double idf = CountIDF (word);
+                for (const auto& [ids, tf] : documents_.at(word)){
+                    document_to_relevance[ids] += tf*idf;            
+                }
             }
         }
         for (const string word : query.minus_words){
             if (documents_.count(word) != 0){
-            for(const auto [ids, rel] : documents_.at(word)){
-            document_to_relevance.erase(ids);
-            } 
+                for(const auto [ids, rel] : documents_.at(word)){
+                    document_to_relevance.erase(ids);
+                } 
             }
         }
         for (const auto& [ids, rel] : document_to_relevance){
