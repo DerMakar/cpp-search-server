@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 #include <iostream>
 #include <map>
 #include <set>
@@ -85,11 +86,10 @@ public:
         auto matched_documents = FindAllDocuments(query, key);
         sort(matched_documents.begin(), matched_documents.end(),
              [](const Document& lhs, const Document& rhs) {
-                 if (abs(lhs.relevance - rhs.relevance) < 1e-6) {
-                     return lhs.rating > rhs.rating;
-                 }else{
-                     return lhs.relevance > rhs.relevance;
-                 }
+                if (abs(lhs.relevance - rhs.relevance) < 1e-6) {
+                    return lhs.rating > rhs.rating;
+                    }
+                return lhs.relevance > rhs.relevance;
              });
         if (matched_documents.size() > MAX_RESULT_DOCUMENT_COUNT) {
             matched_documents.resize(MAX_RESULT_DOCUMENT_COUNT);
@@ -126,35 +126,12 @@ public:
     }
    
     vector<Document> FindTopDocuments(const string& raw_query, DocumentStatus status) const {
-       switch (status){
-           case DocumentStatus::ACTUAL:
-               return FindTopDocuments (raw_query, [](int document_id, 
-                                                      DocumentStatus status,
-                                                      int rating) 
-                                        { return status 
-                                            == DocumentStatus::ACTUAL; });
-            case DocumentStatus::IRRELEVANT:
-               return FindTopDocuments (raw_query, [](int document_id,
-                                                      DocumentStatus status,
-                                                      int rating) 
-                                        { return status
-                                            == DocumentStatus::IRRELEVANT; });
-            case DocumentStatus::BANNED:
-            return FindTopDocuments (raw_query, [](int document_id,
-                                                   DocumentStatus status,
-                                                   int rating) 
-                                     { return status
-                                         == DocumentStatus::BANNED; });
-            case DocumentStatus::REMOVED:
-            return FindTopDocuments (raw_query, [](int document_id,
-                                                   DocumentStatus status,
-                                                   int rating)
-                                     { return status 
-                                         == DocumentStatus::REMOVED; });
-            default:
-            return {};
-       }
+        return FindTopDocuments (raw_query, [status](int document_id, 
+                                                     DocumentStatus stat,
+                                                     int rating){
+                                            return stat == status; });
     }
+    
         
     vector<Document> FindTopDocuments(const string& raw_query) const {
        DocumentStatus status = DocumentStatus::ACTUAL;
@@ -189,11 +166,8 @@ private:
         if (ratings.empty()) {
             return 0;
         }
-        int rating_sum = 0;
-        for (const int rating : ratings) {
-            rating_sum += rating;
-        }
-        return rating_sum / static_cast<int>(ratings.size());
+    return accumulate (ratings.begin(),ratings.end(),0) / 
+                       static_cast<int>(ratings.size());
     }
 
     struct QueryWord {
