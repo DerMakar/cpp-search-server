@@ -104,10 +104,7 @@ public:
     inline static constexpr int INVALID_DOCUMENT_ID = -1;
     
     int GetDocumentId(int place_in_line){
-        if (!documents_line.at(place_in_line)){
-            throw out_of_range("указан порядковый номер вне диапазона"s);
-        }
-        return documents_line[place_in_line];
+        return documents_line.at(place_in_line);
     }
     
     void AddDocument(int document_id, const string& document, DocumentStatus status,
@@ -131,16 +128,9 @@ public:
     vector<Document> FindTopDocuments(const string& raw_query,
                                       DocumentPredicate document_predicate) const {
         const Query query = ParseQuery(raw_query);
-        for (string word : query.minus_words){
-            if (!word.empty()){
-                if (word[0] == '-' || word == "no_text"s){
-                    throw invalid_argument("в поисковом запросе ошибки минус-слов"s);
-                }
-            }
-        }
         auto matched_documents = FindAllDocuments(query, document_predicate);
    
-  constexpr double EPS = 1e-6;
+        constexpr double EPS = 1e-6;
         
         sort(matched_documents.begin(), matched_documents.end(),
              [](const Document& lhs, const Document& rhs) {
@@ -241,12 +231,11 @@ private:
     QueryWord ParseQueryWord(string text) const {
         bool is_minus = false;
         // Word shouldn't be empty
-        if (text[0] == '-' && text.size() > 1) {
+        if (text.size() > 1 && text[0] == '-' && text[1] != '-') {
             is_minus = true;
             text = text.substr(1);
-        }else if (text[0] == '-' && text.size() == 1){
-            is_minus = true;
-            text = "no text"s;
+        }else if (text[1] == '-' || (text.size() == 1 && text[0] == '-')){
+            throw invalid_argument("некорректное минус-слово");
         }
         return {text, is_minus, IsStopWord(text)};
     }
@@ -324,12 +313,12 @@ int main() {
     SearchServer search_server(stop_words);
     // Явно игнорируем результат метода AddDocument, чтобы избежать предупреждения
     // о неиспользуемом результате его вызова
-    (void) search_server.AddDocument(1, "пушистый кот пушистый хвост"s, DocumentStatus::ACTUAL, {7, 2, 7});
+    (void) search_server.AddDocument(7, "пушистый кот пушистый хвост"s, DocumentStatus::ACTUAL, {7, 2, 7});
     search_server.AddDocument(2, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
     search_server.AddDocument(3, "пушистый голубь и странный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
     search_server.AddDocument(4, "большой пёс скворец"s, DocumentStatus::ACTUAL, {1, 3, 2});
     search_server.GetDocumentId(0);
-    const auto documents = search_server.FindTopDocuments("пушистый пёс"s);
+    const auto documents = search_server.FindTopDocuments("пушистый  пёс"s);
     for (const auto document : documents){
         PrintDocument (document);
     }
