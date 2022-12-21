@@ -231,12 +231,14 @@ private:
     QueryWord ParseQueryWord(string text) const {
         bool is_minus = false;
         // Word shouldn't be empty
-        if (text.size() > 1 && text[0] == '-' && text[1] != '-') {
+        if (text.size() >= 1 && text[0] == '-') {
+            text.erase(0,1);
+            if(text.empty() || text[0] == '-'){
+                throw invalid_argument("некорректное минус-слово");
+                }
             is_minus = true;
-            text = text.substr(1);
-        }else if (text[1] == '-' || (text.size() == 1 && text[0] == '-')){
-            throw invalid_argument("некорректное минус-слово");
         }
+        
         return {text, is_minus, IsStopWord(text)};
     }
 
@@ -318,7 +320,7 @@ int main() {
     search_server.AddDocument(3, "пушистый голубь и странный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
     search_server.AddDocument(4, "большой пёс скворец"s, DocumentStatus::ACTUAL, {1, 3, 2});
     search_server.GetDocumentId(0);
-    const auto documents = search_server.FindTopDocuments("пушистый  пёс"s);
+    const auto documents = search_server.FindTopDocuments("пушистый  -"s);
     for (const auto document : documents){
         PrintDocument (document);
     }
