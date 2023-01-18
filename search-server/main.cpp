@@ -59,6 +59,13 @@ struct Document {
     int rating = 0;
 };
 
+ostream& operator<<(ostream& out, const Document document){
+    return out << "{ document_id = "s << document.id << ", relevance = "s << document.relevance << ", rating = "s << document.rating << " }"s;
+    
+}
+
+
+
 template <typename StringContainer>
 set<string> MakeUniqueNonEmptyStrings(const StringContainer& strings) {
     set<string> non_empty_strings;
@@ -303,55 +310,61 @@ private:
     }
 };
 
-template<typename Type>
-class IteratorRange
-{
+template <typename Iterator>
+struct IteratorRange {
+    Iterator begin_;
+    Iterator end_;
+    IteratorRange (Iterator begin, Iterator end): begin_(begin), end_(end){} 
+};
+
+template <typename Iterator>
+class Paginator {
 public:
-	IteratorRange(Type inStart, Type inEnd)
-		: start(inStart), end(inEnd)
-  {
-  }
+Paginator (Iterator range_begin, Iterator range_end, int page_size)
+    : page_size_(page_size)
+{
 
-	Type getStart() const
-  {
-    return start;
-  }
+Iterator temp = range_begin;
+for (auto i = range_begin + page_size; i < range_end; i += page_size){
+    pages.push_back(IteratorRange(temp, i));
+    temp = i;
+}
+if (temp != range_end) pages.push_back(IteratorRange(temp, range_end));
 
-	Type getEnd() const
-  {
-    return end;
-  }
 
-	Type getSize() const
-  {
-    return (end - start);
+}
+
+Iterator begin() const {
+    return begin_;
   }
+  
+Iterator end() const
+  {
+    return end_;
+  }
+  
+int size() const
+    {
+    return page_size_;
+    }
 
 private:
-  Type start;
-  Type end;
+vector<IteratorRange<Iterator>> pages;
+Iterator begin_;
+Iterator end_;
+int page_size_;
+    
 };
 
 template <typename Type>
-class Paginator {
-public:
-Paginator (Type range_begin, Type range_end, int page_size)
-{
-int num_of_pages = (range_end - range_begin) / page_size;
-if (page_size %2 = 0){
-continue;
-}else{
-num_of_pages += 1;
-}
-for (auto i = range_begin, i < range_end, advance(i, page_size)){
-
-}
+ostream& operator<<(ostream& out, IteratorRange<Type> search){
+    for (auto i = search.begin(); i < search.end(); i++){
+         out << i;
+    }
+   return out;
 }
 
-private:
-vector<IteratorRange>;
-    
-}
+
 
 template <typename Container>
 auto Paginate(const Container& c, size_t page_size) {
