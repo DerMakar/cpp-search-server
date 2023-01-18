@@ -325,22 +325,22 @@ Paginator (Iterator range_begin, Iterator range_end, int page_size)
 {
 
 Iterator temp = range_begin;
-for (auto i = range_begin + page_size; i < range_end; i += page_size){
-    pages.push_back(IteratorRange(temp, i));
-    temp = i;
+for (; temp + page_size < range_end; temp += page_size){
+    pages.push_back(IteratorRange(temp, temp + page_size));
+    
 }
 if (temp != range_end) pages.push_back(IteratorRange(temp, range_end));
 
 
 }
 
-Iterator begin() const {
-    return begin_;
+auto begin() const {
+    return pages.begin();
   }
   
-Iterator end() const
+auto end() const
   {
-    return end_;
+    return pages.end();
   }
   
 int size() const
@@ -358,8 +358,8 @@ int page_size_;
 
 template <typename Type>
 ostream& operator<<(ostream& out, IteratorRange<Type> search){
-    for (auto i = search.begin(); i < search.end(); i++){
-         out << i;
+    for (auto i = search.begin_; i < search.end_; i++){
+         out << *i;
     }
    return out;
 }
