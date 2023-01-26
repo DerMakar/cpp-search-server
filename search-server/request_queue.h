@@ -30,7 +30,7 @@ template <typename DocumentPredicate>
         }
         
         if (requests_.size() < RequestQueue::min_in_day_){
-            QueryResult x = {result, result.empty()};
+            QueryResult query_result = {result, result.empty()};
             requests_.push_back(x);
         }else if (RequestQueue::requests_.size() == RequestQueue::min_in_day_){
             if(requests_.front().empt){
