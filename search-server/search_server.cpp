@@ -63,11 +63,15 @@ std::vector<int>::iterator SearchServer::end()
 
 //реализация метода удаления
 void SearchServer::RemoveDocument(int document_id){
-    for (auto el : word_to_document_freqs_){
+    if(id_with_words_freq.count(document_id) == 0){
+        return;
+    }
+    for (auto [word, freq] : id_with_words_freq.at(document_id)){
     //std::map<std::string, std::map<int, double>> word_to_document_freqs_;
-    auto it = el.second.find(document_id);
-        if (it != el.second.end()){
-            el.second.erase(it);
+    //std::map<int, std::map<std::string, double>> id_with_words_freq;
+    auto it = word_to_document_freqs_.at(word).find(document_id);
+        if (it != word_to_document_freqs_.at(word).end()){
+            word_to_document_freqs_.at(word).erase(it);
         }
     }
     docs_index.erase(find(docs_index.begin(),docs_index.end(),document_id));
@@ -129,8 +133,8 @@ const std::map<std::string, double>& SearchServer::GetWordFrequencies(int docume
     if (id_with_words_freq.count(document_id) == 0){
         return word_freq;
     }
-    word_freq = id_with_words_freq.at(document_id);
-    return word_freq;    
+    return id_with_words_freq.at(document_id);
+        
 }
 
 // создаем функцию для возврата приватного id
