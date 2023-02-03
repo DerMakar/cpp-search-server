@@ -17,7 +17,7 @@ void SearchServer::AddDocument(int document_id, const std::string& document,
             word_to_document_freqs_[word][document_id] += inv_word_count;
             //в хидере объявили словарь id и сета слов. Здесь в него добавляем
             id_with_words_freq[document_id][word] += inv_word_count;
-            id_with_words[document_id].insert(word);
+            
         }
         documents_.emplace(document_id, SearchServer::DocumentData{SearchServer::ComputeAverageRating(ratings), status});
         docs_index.push_back(document_id);
@@ -38,18 +38,41 @@ int SearchServer::GetDocumentCount() const {
         return documents_.size();
     }
 
+// заменяем метод GetDocumentId(int index) на итераторы
+std::vector<int>::const_iterator SearchServer::begin() const
+{
+	return docs_index.begin();
+}
+
+std::vector<int>::const_iterator SearchServer::end() const
+{
+	return docs_index.end();
+}
+
+std::vector<int>::iterator SearchServer::begin()
+{
+	return docs_index.begin();
+}
+
+std::vector<int>::iterator SearchServer::end()
+{
+	return docs_index.end();
+}
+
 
 
 //реализация метода удаления
 void SearchServer::RemoveDocument(int document_id){
-    for (std::string str : id_with_words[document_id]){
+    for (auto el : word_to_document_freqs_){
     //std::map<std::string, std::map<int, double>> word_to_document_freqs_;
-    word_to_document_freqs_[str].erase(document_id);    
+    auto it = el.second.find(document_id);
+        if (it != el.second.end()){
+            el.second.erase(it);
+        }
     }
     docs_index.erase(find(docs_index.begin(),docs_index.end(),document_id));
-    id_with_words_freq.erase(find(id_with_words_freq.begin(), id_with_words_freq.end(), document_id));
-    id_with_words.erase(find(id_with_words.begin(), id_with_words.end(), document_id));
-    documents_.erase(find(documents_.begin(), documents_.end(), document_id));
+    id_with_words_freq.erase(document_id);
+    documents_.erase(document_id);
 }
 
 std::tuple<std::vector<std::string>, DocumentStatus> SearchServer::MatchDocument(const std::string& raw_query,
@@ -100,10 +123,21 @@ std::vector<std::string> SearchServer::SplitIntoWordsNoStop(const std::string& t
         return words;
     }
 
+//реализация метода поиска частот
 const std::map<std::string, double>& SearchServer::GetWordFrequencies(int document_id) const{
-    return id_with_words_freq.at(document_id);    
+    static std::map<std::string, double> word_freq;
+    if (id_with_words_freq.count(document_id) == 0){
+        return word_freq;
+    }
+    word_freq = id_with_words_freq.at(document_id);
+    return word_freq;    
 }
- 
+
+// создаем функцию для возврата приватного id
+// vector<int> GetId(){return  docs_index}
+
+
+
 
 int SearchServer::ComputeAverageRating(const std::vector<int>& ratings) {
         if (ratings.empty()) {

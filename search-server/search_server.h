@@ -29,19 +29,18 @@ public:
     int GetDocumentCount() const;
 
     //Объявили в хидере методы
-    auto begin() const{
-        return docs_index.begin();
-    };
-
-    auto end() const{
-        return docs_index.end();
-    };
-
+    std::vector<int>::const_iterator begin() const;
+    std::vector<int>::const_iterator end() const;
+    std::vector<int>::iterator begin();
+    std::vector<int>::iterator end();
+    
     // Объявляем метод удаления документа
     void RemoveDocument(int document_id);
     
     std::tuple<std::vector<std::string>, DocumentStatus> MatchDocument(const std::string& raw_query, int document_id) const;
 
+     //объявляем метод получения частот слов по id
+    const std::map<std::string, double>& GetWordFrequencies(int document_id) const;
     
 private:
     struct DocumentData {
@@ -51,7 +50,6 @@ private:
     const std::set<std::string> stop_words_;
     std::map<std::string, std::map<int, double>> word_to_document_freqs_;
     std::map<int, std::map<std::string, double>> id_with_words_freq;
-    std::map<int, std::set<std::string>> id_with_words;
     std::map<int, DocumentData> documents_;
     std::vector<int> docs_index;
 
@@ -61,8 +59,7 @@ private:
 
     std::vector<std::string> SplitIntoWordsNoStop(const std::string& text) const;
 
-    //объявляем метод получения частот слов по id
-    const std::map<std::string, double>& GetWordFrequencies(int document_id) const;
+   
      
     static int ComputeAverageRating(const std::vector<int>& ratings);
 
