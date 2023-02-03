@@ -20,7 +20,7 @@ void SearchServer::AddDocument(int document_id, const std::string& document,
             
         }
         documents_.emplace(document_id, SearchServer::DocumentData{SearchServer::ComputeAverageRating(ratings), status});
-        docs_index.push_back(document_id);
+        docs_index.insert(document_id);
     }
 
 std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_query, DocumentStatus status) const {
@@ -39,22 +39,22 @@ int SearchServer::GetDocumentCount() const {
     }
 
 // заменяем метод GetDocumentId(int index) на итераторы
-std::vector<int>::const_iterator SearchServer::begin() const
+std::set<int>::const_iterator SearchServer::begin() const
 {
 	return docs_index.begin();
 }
 
-std::vector<int>::const_iterator SearchServer::end() const
+std::set<int>::const_iterator SearchServer::end() const
 {
 	return docs_index.end();
 }
 
-std::vector<int>::iterator SearchServer::begin()
+std::set<int>::iterator SearchServer::begin()
 {
 	return docs_index.begin();
 }
 
-std::vector<int>::iterator SearchServer::end()
+std::set<int>::iterator SearchServer::end()
 {
 	return docs_index.end();
 }

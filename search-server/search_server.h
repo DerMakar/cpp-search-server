@@ -29,10 +29,10 @@ public:
     int GetDocumentCount() const;
 
     //Объявили в хидере методы
-    std::vector<int>::const_iterator begin() const;
-    std::vector<int>::const_iterator end() const;
-    std::vector<int>::iterator begin();
-    std::vector<int>::iterator end();
+    std::set<int>::const_iterator begin() const;
+    std::set<int>::const_iterator end() const;
+    std::set<int>::iterator begin();
+    std::set<int>::iterator end();
     
     // Объявляем метод удаления документа
     void RemoveDocument(int document_id);
@@ -51,7 +51,7 @@ private:
     std::map<std::string, std::map<int, double>> word_to_document_freqs_;
     std::map<int, std::map<std::string, double>> id_with_words_freq;
     std::map<int, DocumentData> documents_;
-    std::vector<int> docs_index;
+    std::set<int> docs_index;
 
     bool IsStopWord(const std::string& word) const;
 
