@@ -1,4 +1,5 @@
 #include "process_queries.h"
+
 #include <execution>
 #include <functional>
 
